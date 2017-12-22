@@ -25,11 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    hopcroft-karp.cpp
 
 HEADERS += \
         mainwindow.h \
-    hopcroft-carp.h
+    hopcroft-karp.h
 
 FORMS += \
         mainwindow.ui
