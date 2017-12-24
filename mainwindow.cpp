@@ -147,9 +147,10 @@ void MainWindow::on_pushButton_run_clicked()
     for(std::set<std::string>::iterator it = courseslist.begin();it != courseslist.end();it++)
         temp.push_back(*it);
     int *result = graph.result();
-    ui->tableWidget_result->setRowCount(int(teachers.size()));
     for(int i = 0;i < int(teachers.size());i++)
     {
+        if(result[i] < 0) continue;
+        ui->tableWidget_result->setRowCount(ui->tableWidget_result->rowCount() + 1);
         QTableWidgetItem *Teacher = new QTableWidgetItem(QString(teachers.at(i).c_str()));
         QTableWidgetItem *Course = new QTableWidgetItem(QString(temp.at(result[i]).c_str()));
         ui->tableWidget_result->setItem(i, 0, Teacher);
