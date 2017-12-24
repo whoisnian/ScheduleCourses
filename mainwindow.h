@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <string>
 #include <vector>
+#include <utility>
+#include <map>
 #include <set>
 
 namespace Ui {
@@ -37,8 +39,10 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    std::vector<std::string> teachers;
-    std::vector< std::vector<std::string> *> courses;
+    std::vector<std::string> teachers; //教师名字
+    std::map<unsigned long long, int> teachers_used; //已出现过的教师名字哈希值，用来快速判重
+    std::vector< std::vector<std::string> *> courses; //每一个教师对应的课程名字
+    std::map< std::pair<std::string, std::string>, int> courses_used; //每一对教师与课程的对应组合，用来快速判重
     std::set<std::string> courseslist;
 };
 

@@ -22,6 +22,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+unsigned long long counthash(std::string st)
+{
+    int len = st.length(), i;
+    unsigned long long hash = 0;
+    for(i = 0;i < len;i++)
+        hash = hash * 131 + st[i];
+    return hash;
+}
+
 void MainWindow::on_action_import_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "选择要导入的文件", "/");
@@ -36,6 +45,12 @@ void MainWindow::on_action_import_triggered()
         if(line.split(QRegExp("\\s+"))[0] == QString("---"))
         {
             line = file.readLine();
+            if(teachers_used[counthash(line.split(QRegExp("\\s+"))[0].toStdString())] > 0)
+            {
+                QMessageBox::information(this, "重复项", "包含重复的教师项，导入失败", QMessageBox::Ok, QMessageBox::Ok);
+                return;
+            }
+            teachers_used[counthash(line.split(QRegExp("\\s+"))[0].toStdString())] = 1;
             teachers.push_back(line.split(QRegExp("\\s+"))[0].toStdString());
             std::vector<std::string> *t = new std::vector<std::string>;
             courses.push_back(t);
@@ -43,6 +58,12 @@ void MainWindow::on_action_import_triggered()
         }
         else
         {
+            if(courses_used[std::pair<std::string, std::string>(teachers.back(), line.split(QRegExp("\\s+"))[0].toStdString())] > 0)
+            {
+                QMessageBox::information(this, "重复项", "教师包含重复的课程项，导入失败", QMessageBox::Ok, QMessageBox::Ok);
+                return;
+            }
+            courses_used[std::pair<std::string, std::string>(teachers.back(), line.split(QRegExp("\\s+"))[0].toStdString())] = 1;
             courses.back()->push_back(line.split(QRegExp("\\s+"))[0].toStdString());
             courseslist.insert(line.split(QRegExp("\\s+"))[0].toStdString());
         }
@@ -60,6 +81,12 @@ void MainWindow::on_pushButton_add_teacher_clicked()
     bool ok;
     QString name = QInputDialog::getText(this, "教师", "教师名称：", QLineEdit::Normal, "", &ok);
     if(!ok) return;
+    if(teachers_used[counthash(name.toStdString())] > 0)
+    {
+        QMessageBox::information(this, "重复项", "该教师已添加过", QMessageBox::Ok, QMessageBox::Ok);
+        return;
+    }
+    teachers_used[counthash(name.toStdString())] = 1;
     teachers.push_back(name.toStdString());
     std::vector<std::string> *t = new std::vector<std::string>;
     courses.push_back(t);
@@ -87,6 +114,12 @@ void MainWindow::on_pushButton_add_course_clicked()
     input->setComboBoxItems(completer);
     bool ok = input->exec();
     if(!ok) return;
+    if(courses_used[std::pair<std::string, std::string>(teachers.at(ui->listWidget_teachers->currentRow()), input->textValue().toStdString())] > 0)
+    {
+        QMessageBox::information(this, "重复项", "该教师的该课程已添加过", QMessageBox::Ok, QMessageBox::Ok);
+        return;
+    }
+    courses_used[std::pair<std::string, std::string>(teachers.at(ui->listWidget_teachers->currentRow()), input->textValue().toStdString())] = 1;
     courses.at(row)->push_back(input->textValue().toStdString());
     courseslist.insert(input->textValue().toStdString());
     ui->listWidget_courses->addItem(input->textValue());
@@ -106,12 +139,14 @@ void MainWindow::on_pushButton_delete_clicked()
     int row_course = ui->listWidget_courses->currentRow();
     if(row_course == -1)
     {
+        teachers_used[counthash(teachers.at(ui->listWidget_teachers->currentRow()))] = 0;
         teachers.erase(teachers.begin() + row_teacher);
         courses.erase(courses.begin() + row_teacher);
         ui->listWidget_teachers->takeItem(row_teacher);
     }
     else
     {
+        courses_used[std::pair<std::string, std::string>(teachers.at(ui->listWidget_teachers->currentRow()), courses.at(row_teacher)->at(row_course))] = 0;
         courses.at(row_teacher)->erase(courses.at(row_teacher)->begin() + row_course);
         ui->listWidget_courses->takeItem(row_course);
     }
@@ -124,6 +159,8 @@ void MainWindow::on_pushButton_clear_clicked()
 {
     teachers.clear();
     courses.clear();
+    teachers_used.clear();
+    courses_used.clear();
     ui->listWidget_teachers->clear();
     ui->listWidget_courses->clear();
     ui->tableWidget_result->clear();
@@ -147,14 +184,15 @@ void MainWindow::on_pushButton_run_clicked()
     for(std::set<std::string>::iterator it = courseslist.begin();it != courseslist.end();it++)
         temp.push_back(*it);
     int *result = graph.result();
+    ui->tableWidget_result->setRowCount(0);
     for(int i = 0;i < int(teachers.size());i++)
     {
         if(result[i] < 0) continue;
         ui->tableWidget_result->setRowCount(ui->tableWidget_result->rowCount() + 1);
         QTableWidgetItem *Teacher = new QTableWidgetItem(QString(teachers.at(i).c_str()));
         QTableWidgetItem *Course = new QTableWidgetItem(QString(temp.at(result[i]).c_str()));
-        ui->tableWidget_result->setItem(i, 0, Teacher);
-        ui->tableWidget_result->setItem(i, 1, Course);
+        ui->tableWidget_result->setItem(ui->tableWidget_result->rowCount() - 1, 0, Teacher);
+        ui->tableWidget_result->setItem(ui->tableWidget_result->rowCount() - 1, 1, Course);
     }
 }
 
