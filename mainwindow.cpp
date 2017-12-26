@@ -143,6 +143,7 @@ void MainWindow::on_pushButton_delete_clicked()
         teachers.erase(teachers.begin() + row_teacher);
         courses.erase(courses.begin() + row_teacher);
         ui->listWidget_teachers->takeItem(row_teacher);
+        ui->listWidget_courses->clear();
     }
     else
     {
