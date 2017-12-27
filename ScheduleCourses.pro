@@ -30,7 +30,8 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-    hopcroft-karp.h
+    hopcroft-karp.h \
+    queue.h
 
 FORMS += \
         mainwindow.ui

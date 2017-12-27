@@ -2,7 +2,7 @@
 #define HOPCROFTKARP_H
 
 #include <vector>
-#include <queue>
+#include "queue.h"
 #include <set>
 #include <string>
 #include <cstring>

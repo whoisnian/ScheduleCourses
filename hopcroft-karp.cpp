@@ -32,7 +32,7 @@ HopcroftKarp::HopcroftKarp(std::vector<std::vector<std::string> *> courses, std:
 
 bool HopcroftKarp::searchpath()
 {
-    std::queue<int>q;//使用stl内的队列
+    queue<int>q;//使用队列
     while(!q.empty())q.pop();//清空
     memset(teacher_dis,-1,sizeof(int)*(teachernum+1));//初始化
     memset(course_dis,-1,sizeof(int)*(coursenum+1));
