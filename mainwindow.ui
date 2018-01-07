@@ -13,6 +13,9 @@
   <property name="windowTitle">
    <string>安排课表</string>
   </property>
+  <property name="windowIcon">
+   <iconset theme="document-properties-symbolic"/>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
